@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini To-Do App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h1 {
+      text-align: center;
+      color: #4f46e5;
+    }
+    .input-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      background: #4f46e5;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #4338ca; }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      background: #f9fafb;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li.done {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .delete {
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete:hover { background: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>📝 To-Do List</h1>
+    <div class="input-box">
+      <input type="text" id="taskInput" placeholder="Enter a task...">
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+
+    // Load saved tasks
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem("tasks")) || [];
+      saved.forEach(task => renderTask(task.text, task.done));
+    };
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (!text) return;
+      renderTask(text, false);
+      saveTasks();
+      taskInput.value = "";
+    }
+
+    function renderTask(text, done) {
+      const li = document.createElement("li");
+      li.textContent = text;
+      if (done) li.classList.add("done");
+
+      li.onclick = () => {
+        li.classList.toggle("done");
+        saveTasks();
+      };
+
+      const del = document.createElement("button");
+      del.textContent = "✕";
+      del.className = "delete";
+      del.onclick = e => {
+        e.stopPropagation();
+        li.remove();
+        saveTasks();
+      };
+
+      li.appendChild(del);
+      taskList.appendChild(li);
+    }
+
+    function saveTasks() {
+      const tasks = [];
+      taskList.querySelectorAll("li").forEach(li => {
+        tasks.push({ text: li.firstChild.textContent, done: li.classList.contains("done") });
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
